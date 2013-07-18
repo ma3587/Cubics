@@ -1,5 +1,4 @@
-#ifndef _CUBICS_CORE_H_
-#define _CUBICS_CORE_H_
+#pragma once
 
 #include "cocos2d.h"
 

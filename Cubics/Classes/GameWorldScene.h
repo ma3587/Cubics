@@ -26,9 +26,6 @@ public:
 protected:
 	Cube mCurrentCube;
 	Cube mNextCube;
-	CubicsBoard* mBoard;
-	CCSprite* mBoardSprites[BOARD_WIDTH][BOARD_HEIGHT];
-	CCSprite* mCurrentCubeSprites[][]
 };
 
 #endif

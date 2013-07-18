@@ -4,13 +4,10 @@ using namespace cocos2d;
 
 GameWorld::GameWorld()
 {
-	mBoard = new CubicsBoard;
-	mBoard->init();
 }
 
 GameWorld::~GameWorld()
 {
-	delete mBoard;
 }
 
 bool GameWorld::init()
