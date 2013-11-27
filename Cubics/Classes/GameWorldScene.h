@@ -11,21 +11,23 @@ public:
 	~GameWorld();
 
 	virtual bool init();
-	virtual void draw();
 
 	static cocos2d::CCScene* scene();
 
 	// a selector callback
-	void menuCloseCallback(CCObject* pSender);
+	void menuTransformCallback(CCObject* pSender);
+	void menuLeftCallback(CCObject* pSender);
+	void menuRightCallback(CCObject* pSender);
+	void menuDownCallback(CCObject* pSender);
 
 	// Game step
-	void stepGo();
+	void stepGo(float dt);
 
 	CREATE_FUNC(GameWorld);
 
 protected:
-	Cube mCurrentCube;
-	Cube mNextCube;
+
+	CubeManager mCubeManager;
 };
 
 #endif

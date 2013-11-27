@@ -14,32 +14,60 @@ bool GameWorld::init()
 {
 	do 
 	{
-	// Add a menu item with "X" image, which is clicked to quit the program.
-	CCMenuItemImage *pCloseItem = CCMenuItemImage::create(
-		"CloseNormal.png",
-		"CloseSelected.png",
-		this,
-		menu_selector(GameWorld::menuCloseCallback));
-	CC_BREAK_IF(! pCloseItem);
+		CCMenuItemImage *pTransform = CCMenuItemImage::create(
+			"6.png",
+			"6.png",
+			this,
+			menu_selector(GameWorld::menuTransformCallback));
+		CCMenuItemImage *pLeft = CCMenuItemImage::create(
+			"6.png",
+			"6.png",
+			this,
+			menu_selector(GameWorld::menuLeftCallback));
+		CCMenuItemImage *pRight = CCMenuItemImage::create(
+			"6.png",
+			"6.png",
+			this,
+			menu_selector(GameWorld::menuRightCallback));
+		CCMenuItemImage *pDown = CCMenuItemImage::create(
+			"6.png",
+			"6.png",
+			this,
+			menu_selector(GameWorld::menuDownCallback));
 
-	// Place the menu item bottom-right conner.
-	pCloseItem->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 20, 20));
 
-	// Create a menu with the "close" menu item, it's an auto release object.
-	CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
-	pMenu->setPosition(CCPointZero);
-	CC_BREAK_IF(! pMenu);
+		// Place the menu item bottom-right conner.
+		pTransform->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 100, 160));
+		pLeft->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 160, 100));
+		pRight->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 40, 100));
+		pDown->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 100, 40));
 
-	// Add the menu to HelloWorld layer as a child layer.
-	this->addChild(pMenu, 1);
+		// Create a menu with the "close" menu item, it's an auto release object.
+		CCMenu* pMenu = CCMenu::create(pTransform, pLeft, pRight, pDown, NULL);
+		pMenu->setPosition(CCPointZero);
+		CC_BREAK_IF(! pMenu);
+
+		addChild(pMenu, 1);
+
+		CCDrawNode *pDrawNode = CCDrawNode::create();
+		addChild(pDrawNode);
+		CCPoint points[] = { 
+			CCPoint(0,0), 
+			CCPoint((CubeManager::MAIN_BOARD_WIDTH)* CubeManager::CUBE_SIZE, 0),
+			CCPoint((CubeManager::MAIN_BOARD_WIDTH)* CubeManager::CUBE_SIZE, (CubeManager::MAIN_BOARD_HEIGHT + 1)* CubeManager::CUBE_SIZE),
+			CCPoint(0, (CubeManager::MAIN_BOARD_HEIGHT + 1)* CubeManager::CUBE_SIZE)
+		};
+		pDrawNode->drawPolygon(points, sizeof(points)/sizeof(points[0]), ccc4f(0,0,0.3f,0.5f), 4, ccc4f(0,0,1,1));
+
+
+		if (!mCubeManager.init(this))
+			return false;
+
+		schedule(schedule_selector(GameWorld::stepGo), 0.5f);
 
 	} while(0);
 
 	return true;
-}
-
-void GameWorld::draw()
-{
 }
 
 cocos2d::CCScene* GameWorld::scene()
@@ -63,14 +91,27 @@ cocos2d::CCScene* GameWorld::scene()
 	return scene;
 }
 
-
-void GameWorld::menuCloseCallback(CCObject* pSender)
+void GameWorld::stepGo(float dt)
 {
-	// "close" menu item clicked
-	CCDirector::sharedDirector()->end();
+	mCubeManager.step(dt);
 }
 
-void GameWorld::stepGo()
+void GameWorld::menuTransformCallback( CCObject* pSender )
 {
+	mCubeManager.transform();
+}
 
+void GameWorld::menuLeftCallback( CCObject* pSender )
+{
+	mCubeManager.move(CubeManager::ED_LEFT);
+}
+
+void GameWorld::menuRightCallback( CCObject* pSender )
+{
+	mCubeManager.move(CubeManager::ED_RIGHT);
+}
+
+void GameWorld::menuDownCallback( CCObject* pSender )
+{
+	mCubeManager.move(CubeManager::ED_DOWN);
 }

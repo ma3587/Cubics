@@ -52,6 +52,9 @@
     <ClInclude Include="..\Classes\CubicsCore.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\Classes\BoardTemplate.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -67,6 +70,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\CubicsCore.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\BoardTemplate.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
