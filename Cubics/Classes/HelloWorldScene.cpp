@@ -45,15 +45,22 @@ bool HelloWorld::init()
 		setTouchEnabled(true);
 
 		// Create a label and initialize with string "Hello World".
-		CCLabelTTF* pLabel = CCLabelTTF::create("Russian Cubics\rCocos2d-x Powered", "Arial", 48);
+		CCLabelTTF* pLabel = CCLabelTTF::create("Tetris", "Arial", 56);
 		CC_BREAK_IF(! pLabel);
 
 		// Get window size and place the label upper. 
 		CCSize size = CCDirector::sharedDirector()->getWinSize();
-		pLabel->setPosition(ccp(size.width / 2, size.height - 50));
+		pLabel->setPosition(ccp(size.width / 2, size.height - 400));
 
 		// Add the label to HelloWorld layer as a child layer.
 		this->addChild(pLabel, 1);
+
+		pLabel = CCLabelTTF::create("Cocos2d-X Powered", "Arial", 36);
+		CC_BREAK_IF(! pLabel);
+		pLabel->setPosition(ccp(size.width / 2, 100));
+		pLabel->setColor(ccc3(255, 192, 0));
+		this->addChild(pLabel, 1);
+
 
 		// 3. Add add a splash screen, show the cocos2d splash image.
 		CCSprite* pSprite = CCSprite::create("HelloWorld.png");
