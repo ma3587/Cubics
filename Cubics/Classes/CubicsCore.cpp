@@ -17,10 +17,18 @@ bool CubeManager::init( cocos2d::CCLayer* layer )
 	mGameOver = false;
 	mFallingActive = false;
 	mScore = 0;
+	mNextFallingType = -1;
+	mNextFallingIndex = -1;
+	mNextFallingBaseX = 11;
+	mNextFallingBaseY = 16;
 
 	for (int i = 0; i < FALLING_BOARD_WIDTH; ++i)
 		for (int j = 0; j < FALLING_BOARD_HEIGHT; ++j)
 			mFallingSprites[i][j] = NULL;
+
+	for (int i = 0; i < FALLING_BOARD_WIDTH; ++i)
+		for (int j = 0; j < FALLING_BOARD_HEIGHT; ++j)
+			mNextFallingSprites[i][j] = NULL;
 
 	for (int i = 0; i < MAIN_BOARD_WIDTH; ++i)
 		for (int j = 0; j < MAIN_BOARD_HEIGHT; ++j)
@@ -31,7 +39,7 @@ bool CubeManager::init( cocos2d::CCLayer* layer )
 	time_t t;  
 	std::srand((unsigned int)time(&t));
 
-	if (!generateFalling())
+	if (!generateFallingBoard())
 		return false;
 
 	return true;
@@ -44,26 +52,14 @@ void CubeManager::step(float dt)
 
 	if (!isFallingActive())
 	{
-		if (!generateFalling())
+		if (!generateFallingBoard())
 		{
 			setGameOver(true);
 		}
 		return;
 	}
 
-	if (collide(ED_DOWN))
-	{
-		mergeFalling();
-
-		if (checkFullLines())
-		{
-			clearFullLines();
-		}
-	}
-	else
-	{
-		move(ED_DOWN);
-	}
+	stepDown();
 }
 
 void CubeManager::move( ENUM_DIRECTION direction )
@@ -125,36 +121,74 @@ void CubeManager::transform()
 	}
 }
 
-bool CubeManager::generateFalling()
+bool CubeManager::generateFallingBoard()
 {
+	mFallingActive = true;
+
 	for (int i = 0; i < FALLING_BOARD_WIDTH; ++i)
 		for (int j = 0; j < FALLING_BOARD_HEIGHT; ++j)
 			mFallingSprites[i][j] = NULL;
 
 	mFallingBaseX = MAIN_BOARD_WIDTH / 2 - FALLING_BOARD_WIDTH / 2;
 	mFallingBaseY = MAIN_BOARD_HEIGHT - FALLING_BOARD_HEIGHT;
-	mFallingType = rand() % BOARD_TYPE;
-	mFallingIndex = rand();
 
-	char strSprite[20];
-	sprintf_s(strSprite, 20, "%d.png", mFallingType);
-
-	const BoardTemplate& templ = mBoardTemplateManager.getBoardTemplate(mFallingType, mFallingIndex);
-	for (size_t i = 0; i < templ.size(); ++i)
+	bool bFirst = false;
+	if (mNextFallingType == -1)
 	{
-		int x = templ[i].x;
-		int y = templ[i].y;
-		
-		cocos2d::CCSprite* pSprite = cocos2d::CCSprite::create(strSprite);
-		pSprite->setAnchorPoint(ccp(0, 0));
-		pSprite->setPosition(
-			ccp((mFallingBaseX + x)*CUBE_SIZE, (mFallingBaseY + y)*CUBE_SIZE));
-	
-		mLayer->addChild(pSprite);
-		mFallingSprites[x][y] = pSprite;
+		bFirst = true;
+		mNextFallingType = rand() % BOARD_TYPE;
+		mNextFallingIndex = rand();
+		mFallingType = rand() % BOARD_TYPE;
+		mFallingIndex = rand();
+	}
+	else
+	{
+		mFallingType = mNextFallingType;
+		mFallingIndex = mNextFallingIndex;
+		mNextFallingType = rand() % BOARD_TYPE;
+		mNextFallingIndex = rand();
 	}
 
-	mFallingActive = true;
+	if (bFirst)
+	{
+		generateBoardSprite(
+			mNextFallingSprites, 
+			mNextFallingBaseX,
+			mNextFallingBaseY, 
+			mNextFallingType, 
+			mNextFallingIndex);
+
+		generateBoardSprite(
+			mFallingSprites,
+			mFallingBaseX,
+			mFallingBaseY,
+			mFallingType,
+			mFallingIndex);
+	}
+	else
+	{
+		// copy next to current
+		for (int i = 0; i < FALLING_BOARD_WIDTH; ++i)
+		{
+			for (int j = 0; j < FALLING_BOARD_HEIGHT; ++j)
+			{
+				mFallingSprites[i][j] = mNextFallingSprites[i][j];
+
+				if (mFallingSprites[i][j])
+				{
+					mFallingSprites[i][j]->setPosition(
+						ccp((mFallingBaseX + i)*CUBE_SIZE, (mFallingBaseY + j)*CUBE_SIZE));
+				}
+			}
+		}
+
+		generateBoardSprite(
+			mNextFallingSprites, 
+			mNextFallingBaseX,
+			mNextFallingBaseY, 
+			mNextFallingType, 
+			mNextFallingIndex);
+	}
 
 	return !collide(mFallingBaseX, mFallingBaseY, mFallingType, mFallingIndex);
 }
@@ -192,6 +226,23 @@ bool CubeManager::collide( int fallingBaseX, int fallingBaseY, int boardType, in
 	return false;
 }
 
+void CubeManager::stepDown()
+{
+	if (collide(ED_DOWN))
+	{
+		mergeFalling();
+
+		if (checkFullLines())
+		{
+			clearFullLines();
+		}
+	}
+	else
+	{
+		move(ED_DOWN);
+	}
+}
+
 void CubeManager::mergeFalling()
 {
 	for (int i = 0; i < FALLING_BOARD_WIDTH; ++i)
@@ -208,6 +259,7 @@ void CubeManager::mergeFalling()
 			}
 
 			mMainSprites[mFallingBaseX + i][mFallingBaseY + j] = mFallingSprites[i][j];
+			mFallingSprites[i][j] = NULL;
 		}
 	}
 
@@ -238,6 +290,7 @@ bool CubeManager::checkFullLines()
 void CubeManager::clearFullLines()
 {
 	bool bFull = true;
+	int iFullLines = 0;
 	for (int j = 0; j < MAIN_BOARD_HEIGHT;)
 	{
 		bFull = true;
@@ -252,12 +305,15 @@ void CubeManager::clearFullLines()
 
 		if (bFull)
 		{
+			++iFullLines;
 			clearFullLine(j);
 			continue;
 		}
 
 		++j;
 	}
+
+	mScore += iFullLines * iFullLines * 100;
 }
 
 void CubeManager::clearFullLine( int line )
@@ -288,4 +344,31 @@ void CubeManager::clearFullLine( int line )
 			}
 		}
 	}
+}
+
+void CubeManager::generateBoardSprite( cocos2d::CCSprite* pSprites[][FALLING_BOARD_HEIGHT], 
+	int fallingBaseX, int fallingBaseY, int boardType, int boardIndex )
+{
+	for (int i = 0; i < FALLING_BOARD_WIDTH; ++i)
+		for (int j = 0; j < FALLING_BOARD_HEIGHT; ++j)
+			pSprites[i][j] = NULL;
+
+	char strSprite[20];
+	sprintf_s(strSprite, 20, "%d.png", boardType);
+
+	const BoardTemplate& templ = mBoardTemplateManager.getBoardTemplate(boardType, boardIndex);
+	for (size_t i = 0; i < templ.size(); ++i)
+	{
+		int x = templ[i].x;
+		int y = templ[i].y;
+
+		cocos2d::CCSprite* pSprite = cocos2d::CCSprite::create(strSprite);
+		pSprite->setAnchorPoint(ccp(0, 0));
+		pSprite->setPosition(
+			ccp((fallingBaseX + x)*CUBE_SIZE, (fallingBaseY + y)*CUBE_SIZE));
+
+		mLayer->addChild(pSprite);
+		pSprites[x][y] = pSprite;
+	}
+
 }

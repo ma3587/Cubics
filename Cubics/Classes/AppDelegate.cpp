@@ -29,6 +29,11 @@ bool AppDelegate::applicationDidFinishLaunching()
 	// set FPS. the default value is 1.0/60 if you don't call this
 	pDirector->setAnimationInterval(1.0 / 60);
 
+	// set searching path
+	std::vector<std::string> searchPath;
+	searchPath.push_back("Resources");
+	CCFileUtils::sharedFileUtils()->setSearchPaths(searchPath);
+
 	// create a scene. it's an autorelease object
 	CCScene *pScene = HelloWorld::scene();
 

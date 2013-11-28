@@ -37,10 +37,10 @@ bool GameWorld::init()
 
 
 		// Place the menu item bottom-right conner.
-		pTransform->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 100, 160));
-		pLeft->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 160, 100));
-		pRight->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 40, 100));
-		pDown->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 100, 40));
+		pTransform->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 190, 210));
+		pLeft->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 260, 140));
+		pRight->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 120, 140));
+		pDown->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 190, 70));
 
 		// Create a menu with the "close" menu item, it's an auto release object.
 		CCMenu* pMenu = CCMenu::create(pTransform, pLeft, pRight, pDown, NULL);
@@ -59,11 +59,26 @@ bool GameWorld::init()
 		};
 		pDrawNode->drawPolygon(points, sizeof(points)/sizeof(points[0]), ccc4f(0,0,0.3f,0.5f), 4, ccc4f(0,0,1,1));
 
+		CCLabelTTF* pLabel = CCLabelTTF::create("Score:", "Arial", 56);
+		pLabel->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 300, 1100));
+		pLabel->setAnchorPoint(ccp(0, 0.5f));
+		this->addChild(pLabel, 1);
+
+		pLabel = CCLabelTTF::create("0", "Arial", 56);
+		pLabel->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 300, 1000));
+		pLabel->setColor(ccc3(255, 192, 0));
+		pLabel->setAnchorPoint(ccp(0, 0.5f));
+		//pLabel->setHorizontalAlignment(kCCTextAlignmentRight);
+		this->addChild(pLabel, 1);
+		mLabelScore = pLabel;
+
 
 		if (!mCubeManager.init(this))
 			return false;
 
 		schedule(schedule_selector(GameWorld::stepGo), 0.5f);
+		schedule(schedule_selector(GameWorld::checkKeyInput));
+		schedule(schedule_selector(GameWorld::onKeyInput), 0.05f);
 
 	} while(0);
 
@@ -94,6 +109,10 @@ cocos2d::CCScene* GameWorld::scene()
 void GameWorld::stepGo(float dt)
 {
 	mCubeManager.step(dt);
+
+	char strScore[20];
+	sprintf_s(strScore, 20, "%d", mCubeManager.getScore());
+	mLabelScore->setString(strScore);
 }
 
 void GameWorld::menuTransformCallback( CCObject* pSender )
@@ -113,5 +132,53 @@ void GameWorld::menuRightCallback( CCObject* pSender )
 
 void GameWorld::menuDownCallback( CCObject* pSender )
 {
-	mCubeManager.move(CubeManager::ED_DOWN);
+	mCubeManager.stepDown();
+}
+
+void GameWorld::checkKeyInput( float dt )
+{
+	if (GetAsyncKeyState(VK_UP) & 0x8000)
+	{
+		if (mInputKey != VK_UP)
+		{
+			mInputKey = VK_UP;
+			mCubeManager.transform();
+		}
+	}
+	else if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	{
+		if (mInputKey != VK_LEFT)
+		{
+			mInputKey = VK_LEFT;
+			mCubeManager.move(CubeManager::ED_LEFT);
+		}
+	}
+	else if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+	{
+		if (mInputKey != VK_RIGHT)
+		{
+			mInputKey = VK_RIGHT;
+			mCubeManager.move(CubeManager::ED_RIGHT);
+		}
+	}
+	else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	{
+		if (mInputKey != VK_DOWN)
+		{
+			mInputKey = VK_DOWN;
+			mCubeManager.stepDown();
+		}
+	}
+	else
+	{
+		mInputKey = 0;
+	}
+}
+
+void GameWorld::onKeyInput( float dt )
+{
+	if (mInputKey == VK_DOWN)
+	{
+		mCubeManager.stepDown();
+	}
 }

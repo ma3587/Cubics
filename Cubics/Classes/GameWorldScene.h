@@ -22,12 +22,16 @@ public:
 
 	// Game step
 	void stepGo(float dt);
+	void checkKeyInput(float dt);
+	void onKeyInput(float dt);
 
 	CREATE_FUNC(GameWorld);
 
 protected:
 
 	CubeManager mCubeManager;
+	cocos2d::CCLabelTTF* mLabelScore;
+	int mInputKey;
 };
 
 #endif

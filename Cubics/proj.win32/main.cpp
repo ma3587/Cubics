@@ -25,7 +25,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     // create the application instance
     AppDelegate app;
     CCEGLView* eglView = CCEGLView::sharedOpenGLView();
-    eglView->setFrameSize(1000, 1800);
+    eglView->setFrameSize(1200, 1800);
+	eglView->setViewName("Tetris");
 	eglView->setFrameZoomFactor(0.3f);
 
     int ret = CCApplication::sharedApplication()->run();
