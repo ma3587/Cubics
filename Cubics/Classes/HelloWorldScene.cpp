@@ -55,7 +55,12 @@ bool HelloWorld::init()
 		// Add the label to HelloWorld layer as a child layer.
 		this->addChild(pLabel, 1);
 
-		pLabel = CCLabelTTF::create("Cocos2d-X Powered", "Arial", 36);
+		pLabel = CCLabelTTF::create("Cocos2d-X Powered", "Arial", 44);
+		CC_BREAK_IF(! pLabel);
+		pLabel->setPosition(ccp(size.width / 2, 200));
+		pLabel->setColor(ccc3(255, 192, 0));
+		this->addChild(pLabel, 1);
+		pLabel = CCLabelTTF::create("Weibo:@DweepGold", "Arial", 44);
 		CC_BREAK_IF(! pLabel);
 		pLabel->setPosition(ccp(size.width / 2, 100));
 		pLabel->setColor(ccc3(255, 192, 0));
