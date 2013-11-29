@@ -1,19 +1,14 @@
 #include "GameWorldScene.h"
+#include "HelloWorldScene.h"
 
 using namespace cocos2d;
-
-GameWorld::GameWorld()
-{
-}
-
-GameWorld::~GameWorld()
-{
-}
 
 bool GameWorld::init()
 {
 	do 
 	{
+		CC_BREAK_IF(! CCLayer::init());
+
 		CCMenuItemImage *pTransform = CCMenuItemImage::create(
 			"6.png",
 			"6.png",
@@ -34,16 +29,27 @@ bool GameWorld::init()
 			"6.png",
 			this,
 			menu_selector(GameWorld::menuDownCallback));
+		CCMenuItemImage *pGameOver = CCMenuItemImage::create(
+			"GameOver.jpg",
+			"GameOver.jpg",
+			this,
+			menu_selector(GameWorld::menuGameOver));
 
 
 		// Place the menu item bottom-right conner.
-		pTransform->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 190, 210));
-		pLeft->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 260, 140));
-		pRight->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 120, 140));
-		pDown->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 190, 70));
+		CCSize size = CCDirector::sharedDirector()->getWinSize();
+		pTransform->setPosition(ccp(size.width - 190, 210));
+		pLeft->setPosition(ccp(size.width - 260, 140));
+		pRight->setPosition(ccp(size.width - 120, 140));
+		pDown->setPosition(ccp(size.width - 190, 70));
+		pGameOver->setPosition(ccp(size.width / 2, size.height / 2));
+		pGameOver->setScale(5);
+		pGameOver->setVisible(false);
+		mMenuGameOver = pGameOver;
+
 
 		// Create a menu with the "close" menu item, it's an auto release object.
-		CCMenu* pMenu = CCMenu::create(pTransform, pLeft, pRight, pDown, NULL);
+		CCMenu* pMenu = CCMenu::create(pTransform, pLeft, pRight, pDown, pGameOver, NULL);
 		pMenu->setPosition(CCPointZero);
 		CC_BREAK_IF(! pMenu);
 
@@ -60,16 +66,16 @@ bool GameWorld::init()
 		pDrawNode->drawPolygon(points, sizeof(points)/sizeof(points[0]), ccc4f(0,0,0.3f,0.5f), 4, ccc4f(0,0,1,1));
 
 		CCLabelTTF* pLabel = CCLabelTTF::create("Score:", "Arial", 56);
-		pLabel->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 300, 1100));
+		pLabel->setPosition(ccp(size.width - 300, 1100));
 		pLabel->setAnchorPoint(ccp(0, 0.5f));
-		this->addChild(pLabel, 1);
+		this->addChild(pLabel);
 
 		pLabel = CCLabelTTF::create("0", "Arial", 56);
-		pLabel->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 300, 1000));
+		pLabel->setPosition(ccp(size.width - 300, 1000));
 		pLabel->setColor(ccc3(255, 192, 0));
 		pLabel->setAnchorPoint(ccp(0, 0.5f));
 		//pLabel->setHorizontalAlignment(kCCTextAlignmentRight);
-		this->addChild(pLabel, 1);
+		this->addChild(pLabel);
 		mLabelScore = pLabel;
 
 
@@ -113,6 +119,8 @@ void GameWorld::stepGo(float dt)
 	char strScore[20];
 	sprintf_s(strScore, 20, "%d", mCubeManager.getScore());
 	mLabelScore->setString(strScore);
+
+	mMenuGameOver->setVisible(mCubeManager.isGameOver());
 }
 
 void GameWorld::menuTransformCallback( CCObject* pSender )
@@ -133,6 +141,18 @@ void GameWorld::menuRightCallback( CCObject* pSender )
 void GameWorld::menuDownCallback( CCObject* pSender )
 {
 	mCubeManager.stepDown();
+}
+
+void GameWorld::menuGameOver( CCObject* pSender )
+{
+	do 
+	{
+		CCScene* helloScene = HelloWorld::scene();
+		CC_BREAK_IF(!helloScene);
+
+		CCDirector::sharedDirector()->replaceScene(helloScene);
+
+	} while (0);
 }
 
 void GameWorld::checkKeyInput( float dt )

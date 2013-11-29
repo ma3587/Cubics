@@ -7,9 +7,6 @@
 class GameWorld : public cocos2d::CCLayer
 {
 public:
-	GameWorld();
-	~GameWorld();
-
 	virtual bool init();
 
 	static cocos2d::CCScene* scene();
@@ -19,6 +16,7 @@ public:
 	void menuLeftCallback(CCObject* pSender);
 	void menuRightCallback(CCObject* pSender);
 	void menuDownCallback(CCObject* pSender);
+	void menuGameOver(CCObject* pSender);
 
 	// Game step
 	void stepGo(float dt);
@@ -31,6 +29,7 @@ protected:
 
 	CubeManager mCubeManager;
 	cocos2d::CCLabelTTF* mLabelScore;
+	cocos2d::CCMenuItemImage * mMenuGameOver;
 	int mInputKey;
 };
 

@@ -64,6 +64,9 @@ void CubeManager::step(float dt)
 
 void CubeManager::move( ENUM_DIRECTION direction )
 {
+	if (isGameOver())
+		return;
+
 	if (collide(direction))
 		return;
 
@@ -89,6 +92,9 @@ void CubeManager::move( ENUM_DIRECTION direction )
 
 void CubeManager::transform()
 {
+	if (isGameOver())
+		return;
+
 	if (!mFallingActive)
 		return;
 
@@ -228,6 +234,9 @@ bool CubeManager::collide( int fallingBaseX, int fallingBaseY, int boardType, in
 
 void CubeManager::stepDown()
 {
+	if (mGameOver)
+		return;
+
 	if (collide(ED_DOWN))
 	{
 		mergeFalling();
