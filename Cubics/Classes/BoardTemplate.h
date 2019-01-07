@@ -19,6 +19,7 @@ public:
 	void init();
 	const BoardTemplate& getBoardTemplate(int type, int index);
 
+
 protected:
 	void createDataBase();
 
