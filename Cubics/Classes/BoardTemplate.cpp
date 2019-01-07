@@ -91,6 +91,7 @@ void BoardTemplateManager::createDataBase()
 	INSERT_POS(2, 2);
 	INSERT_POS(3, 2);
 	END_INSERT();
+	
 
 	BEGIN_INSERT();
 	INSERT_POS(1, 2);
