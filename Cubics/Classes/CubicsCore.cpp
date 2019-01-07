@@ -13,6 +13,7 @@ bool CubeManager::init( cocos2d::CCLayer* layer )
 	if (layer == NULL)
 		return false;
 
+
 	mLayer = layer;
 	mGameOver = false;
 	mFallingActive = false;
